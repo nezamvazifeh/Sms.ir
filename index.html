@@ -227,22 +227,32 @@ hr {
 
   <h2>📋 سامانه ثبت درخواست و ارسال پیامک</h2>
 
-  <label>📱 شماره موبایل (مقصد)</label>
+  <!-- ===== تنظیمات پیامک ===== -->
+  <div style="background:#f8f5ec;padding:12px;border-radius:8px;border:1px solid #b8963a;margin-bottom:16px;">
+    <p style="font-size:13px;color:#0a2a1a;font-weight:600;">📡 تنظیمات ارسال پیامک:</p>
+    <p style="font-size:12px;color:#4a5a4a;">
+      🔑 API Key: j60P5eTT97CROz8MdumlgNmA2WBC2E<br>
+      📝 کد قالب: 943542<br>
+      📞 شماره خط ارسال: <span id="displayLineNumber" style="color:#b8963a;font-weight:700;">خدمات ویژه (خودکار)</span>
+    </p>
+  </div>
+
+  <label>📱 شماره موبایل (مقصد) *</label>
   <input id="mobile" placeholder="مثال: ۰۹۱۲۳۴۵۶۷۸۹" />
 
-  <label>👤 نام و نام خانوادگی</label>
+  <label>👤 نام و نام خانوادگی *</label>
   <input id="name" placeholder="مثال: علیرضا عوض آقائی" />
 
-  <label>🆔 کد ملی</label>
+  <label>🆔 کد ملی *</label>
   <input id="meli" placeholder="مثال: ۲۴۲۰۴۵۴۰۵۷" />
 
-  <label>🔑 شناسه</label>
+  <label>🔑 شناسه *</label>
   <input id="shenase" placeholder="کد پیگیری یا شناسه" />
 
-  <label>🎓 مقطع تحصیلی</label>
+  <label>🎓 مقطع تحصیلی *</label>
   <input id="maghta" placeholder="مثال: کارشناسی / کارشناسی ارشد / دکتری" />
 
-  <label>📚 رشته تحصیلی</label>
+  <label>📚 رشته تحصیلی *</label>
   <input id="reshte" placeholder="مثال: فیزیولوژی ورزشی" />
 
   <label>🏢 واحد / دانشگاه</label>
@@ -274,6 +284,11 @@ hr {
   <label>📄 متن تولید شده</label>
   <textarea id="out" rows="6" readonly></textarea>
 
+  <div id="sendDetails" style="display:none;background:#f0f7f4;padding:12px;border-radius:8px;margin:10px 0;font-size:13px;border:1px solid #a7d0b8;">
+    <p style="font-weight:600;color:#0a2a1a;">📨 جزئیات ارسال:</p>
+    <p id="sendInfo" style="color:#1a4a2a;"></p>
+  </div>
+
   <div id="statusMsg" class="status-msg"></div>
 
   <button onclick="logout()" class="btn-danger" style="margin-top:16px;">🚪 خروج از حساب</button>
@@ -281,17 +296,25 @@ hr {
 
 <script>
 // ============================================================
-//  🔑 اطلاعات اتصال به اس‌ام‌اس‌آی‌آر (جایگزین شده)
+//  🔑 اطلاعات اتصال به اس‌ام‌اس‌آی‌آر
 // ============================================================
 const SMS_CONFIG = {
+  // 🔑 API Key شما
   apiKey: "j60P5eTT97CROz8MdumlgNmA2WBC2E",
+  
+  // 📝 کد قالب تایید شده
   templateCode: "943542",
+  
+  // 📞 شماره خط ارسال‌کننده
+  // ⚠️ خالی گذاشتم چون خط خدماتی ویژه هست و خود API تشخیص میده
   lineNumber: "",
+  
+  // 🌐 آدرس API
   apiUrl: "https://api.sms.ir/v1/send"
 };
 
 // ============================================================
-//  👤 اطلاعات لاگین (جایگزین شده)
+//  👤 اطلاعات لاگین
 // ============================================================
 const LOGIN = {
   username: "Admin",
@@ -385,7 +408,7 @@ function showStatus(message, type = "success") {
   if (type !== "loading") {
     setTimeout(() => {
       el.style.display = "none";
-    }, 5000);
+    }, 6000);
   }
 }
 
@@ -393,12 +416,26 @@ function showStatus(message, type = "success") {
 //  📨 ارسال پیامک به اس‌ام‌اس‌آی‌آر
 // ============================================================
 async function sendSMS(phoneNumber, message) {
+  const sendDetails = document.getElementById("sendDetails");
+  const sendInfo = document.getElementById("sendInfo");
+
   try {
     showStatus("⏳ در حال ارسال پیامک...", "loading");
 
+    sendDetails.style.display = "block";
+    sendInfo.innerHTML = `
+      📱 شماره مقصد: ${phoneNumber}<br>
+      📝 متن پیام: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}<br>
+      🔑 API Key: ${SMS_CONFIG.apiKey.substring(0, 10)}...<br>
+      📝 کد قالب: ${SMS_CONFIG.templateCode}<br>
+      📞 شماره خط: خدمات ویژه (خودکار)
+    `;
+
+    // ==========================================
+    //  ساخت payload برای API اس‌ام‌اس‌آی‌آر
+    // ==========================================
     const payload = {
       apiKey: SMS_CONFIG.apiKey,
-      lineNumber: SMS_CONFIG.lineNumber,
       mobile: phoneNumber,
       templateCode: SMS_CONFIG.templateCode,
       parameters: [
@@ -413,7 +450,12 @@ async function sendSMS(phoneNumber, message) {
       ]
     };
 
-    console.log("📤 ارسال به اس‌ام‌اس‌آی‌آر:", payload);
+    // اگه شماره خط وارد شده بود، اضافه کن
+    if (SMS_CONFIG.lineNumber) {
+      payload.lineNumber = SMS_CONFIG.lineNumber;
+    }
+
+    console.log("📤 ارسال به اس‌ام‌اس‌آی‌آر:", JSON.stringify(payload, null, 2));
 
     const response = await fetch(SMS_CONFIG.apiUrl, {
       method: "POST",
@@ -427,17 +469,24 @@ async function sendSMS(phoneNumber, message) {
     const result = await response.json();
     console.log("📥 پاسخ اس‌ام‌اس‌آی‌آر:", result);
 
-    if (response.status === 200 || result.status === 1) {
+    // ==========================================
+    //  بررسی پاسخ
+    // ==========================================
+    if (response.status === 200 && (result.status === 1 || result.status === "success")) {
       showStatus(`✅ پیامک با موفقیت به شماره ${phoneNumber} ارسال شد`, "success");
+      sendInfo.innerHTML += `<br><br>✅ وضعیت: ارسال موفق`;
       return true;
     } else {
-      showStatus(`❌ خطا: ${result.message || result.detail || 'خطای ناشناخته'}`, "error");
+      let errorMsg = result.message || result.detail || JSON.stringify(result);
+      showStatus(`❌ خطا: ${errorMsg}`, "error");
+      sendInfo.innerHTML += `<br><br>❌ وضعیت: ${errorMsg}`;
       return false;
     }
 
   } catch (error) {
     console.error("❌ خطا:", error);
     showStatus(`❌ خطا: ${error.message}`, "error");
+    sendInfo.innerHTML += `<br><br>❌ خطا: ${error.message}`;
     return false;
   }
 }
@@ -461,7 +510,7 @@ async function makeText() {
   }
 
   if (!name || !meli || !maghta || !reshte || !shenase) {
-    showStatus("⚠️ لطفاً تمام فیلدهای الزامی را پر کنید", "error");
+    showStatus("⚠️ لطفاً تمام فیلدهای الزامی (*) را پر کنید", "error");
     return;
   }
 
@@ -479,7 +528,6 @@ async function makeText() {
 
   document.getElementById("out").value = text;
 
-  // ارسال پیامک
   await sendSMS(mobile, text);
 }
 
@@ -535,6 +583,7 @@ console.log("🚀 سامانه ثبت درخواست و ارسال پیامک");
 console.log("📡 متصل به اس‌ام‌اس‌آی‌آر");
 console.log("🔑 API Key:", SMS_CONFIG.apiKey);
 console.log("📝 کد قالب:", SMS_CONFIG.templateCode);
+console.log("📞 شماره خط: خدمات ویژه (خودکار)");
 </script>
 
 </body>
