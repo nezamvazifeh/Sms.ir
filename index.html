@@ -231,7 +231,7 @@ hr {
   <div style="background:#f8f5ec;padding:12px;border-radius:8px;border:1px solid #b8963a;margin-bottom:16px;">
     <p style="font-size:13px;color:#0a2a1a;font-weight:600;">📡 تنظیمات ارسال پیامک:</p>
     <p style="font-size:12px;color:#4a5a4a;">
-      🔑 API Key: j60P5eTT97CROz8MdumlgNmA2WBC2E<br>
+      🔑 API Key: dxhaJhULqxsXYmavawqqbhpRODHTz42mYjbZ6WvGlxA8K4IA<br>
       📝 کد قالب: 943542<br>
       📞 شماره خط ارسال: <span id="displayLineNumber" style="color:#b8963a;font-weight:700;">خدمات ویژه (خودکار)</span>
     </p>
@@ -296,17 +296,16 @@ hr {
 
 <script>
 // ============================================================
-//  🔑 اطلاعات اتصال به اس‌ام‌اس‌آی‌آر
+//  🔑 اطلاعات اتصال به اس‌ام‌اس‌آی‌آر (API Key جدید)
 // ============================================================
 const SMS_CONFIG = {
-  // 🔑 API Key شما
-  apiKey: "j60P5eTT97CROz8MdumlgNmA2WBC2E",
+  // 🔑 API Key جدید شما
+  apiKey: "dxhaJhULqxsXYmavawqqbhpRODHTz42mYjbZ6WvGlxA8K4IA",
   
   // 📝 کد قالب تایید شده
   templateCode: "943542",
   
-  // 📞 شماره خط ارسال‌کننده
-  // ⚠️ خالی گذاشتم چون خط خدماتی ویژه هست و خود API تشخیص میده
+  // 📞 شماره خط ارسال‌کننده (خالی برای خطوط خدماتی)
   lineNumber: "",
   
   // 🌐 آدرس API
@@ -426,7 +425,7 @@ async function sendSMS(phoneNumber, message) {
     sendInfo.innerHTML = `
       📱 شماره مقصد: ${phoneNumber}<br>
       📝 متن پیام: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}<br>
-      🔑 API Key: ${SMS_CONFIG.apiKey.substring(0, 10)}...<br>
+      🔑 API Key: ${SMS_CONFIG.apiKey.substring(0, 15)}...<br>
       📝 کد قالب: ${SMS_CONFIG.templateCode}<br>
       📞 شماره خط: خدمات ویژه (خودکار)
     `;
