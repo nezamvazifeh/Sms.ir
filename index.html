@@ -10,99 +10,237 @@ body{margin:0;font-family:Tahoma,sans-serif;background:#f1f5f9;color:#0f172a;dis
 .card{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:480px;box-shadow:0 2px 12px #0001;margin-top:20px}
 h2{margin:0 0 14px;font-size:18px}
 label{display:block;font-size:13px;margin:12px 0 4px;color:#475569}
-input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:15px}
+input,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:15px}
+textarea{min-height:110px}
 button{width:100%;margin-top:16px;padding:12px;border:0;border-radius:8px;background:#2563eb;color:#fff;font:inherit;font-size:16px;cursor:pointer}
 button.sec{background:#e2e8f0;color:#0f172a;margin-top:8px}
+button.red{background:#fee2e2;color:#991b1b;margin-top:8px}
 button:disabled{opacity:.6}
+.row{display:flex;gap:8px}.row button{margin-top:8px}
 .top{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:2px 12px 12px;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{width:auto;margin:0;padding:8px 14px;font-size:14px;background:#e2e8f0;color:#0f172a;border-radius:20px}
+.chip.on{background:#2563eb;color:#fff}
+.chip.add{background:#dcfce7;color:#166534}
 .sms{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px;font-size:15px;line-height:2.1;margin-top:6px}
-.f{background:#fef9c3;border-bottom:2px solid #eab308;border-radius:4px;padding:2px 6px;outline:none;display:inline-block;min-width:30px}
+.f{background:#fef9c3;border-bottom:2px solid #eab308;border-radius:4px;padding:2px 6px;outline:none;display:inline-block;min-width:40px}
+.f:empty::before{content:attr(data-ph);color:#a16207;opacity:.7}
+.f.bad{background:#fecaca;border-bottom-color:#dc2626}
 .f:focus{background:#fde68a}
-.hint{font-size:12px;color:#64748b;margin-top:6px}
+.hint{font-size:12px;color:#64748b;margin-top:6px;line-height:1.7}
 .msg{margin-top:12px;padding:10px;border-radius:8px;font-size:14px;display:none}
 .ok{background:#dcfce7;color:#166534}.err{background:#fee2e2;color:#991b1b}
 .hide{display:none}
+.toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-120px);background:#166534;color:#fff;padding:12px 22px;border-radius:12px;box-shadow:0 6px 20px #0003;font-size:15px;transition:transform .35s;z-index:99}
+.toast.show{transform:translate(-50%,0)}
+.hi{border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-top:8px;font-size:13px;line-height:1.8}
+.hi b{font-size:14px}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px}
+.tag.ok{background:#dcfce7;color:#166534}.tag.err{background:#fee2e2;color:#991b1b}
+.tag.op{background:#dbeafe;color:#1e40af}.tag.wait{background:#fef9c3;color:#854d0e}
+.raw{color:#94a3b8;font-size:11px}
 </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
 
-<div class="card" id="app">
+<div class="card">
   <h2>📨 ارسال پیامک</h2>
 
-  <div class="top">
+  <div class="top" id="topBox">
     <label>API Key</label>
     <input id="key" type="password" dir="ltr">
-    <label>کد قالب</label>
-    <input id="tpl" inputmode="numeric">
+    <button id="saveTop">💾 ذخیره</button>
+  </div>
+  <div class="top hide" id="savedBar" style="padding:12px">
+    ✅ API Key ذخیره شده است
+    <button class="sec" id="editTop" style="margin-top:8px">✏️ تغییر</button>
   </div>
 
-  <label>شماره موبایل گیرنده</label>
-  <input id="mobile" inputmode="numeric" placeholder="09123456789">
+  <label>قالب</label>
+  <div class="chips" id="chips"></div>
 
-  <label>متن پیامک</label>
-  <div class="sms" id="sms"></div>
-  <div class="hint">روی بخش‌های زرد کلیک کن و ویرایش کن</div>
+  <!-- فرم افزودن / ویرایش قالب -->
+  <div class="top hide" id="form" style="padding-bottom:14px;margin-top:12px">
+    <label>عنوان قالب</label>
+    <input id="fTitle">
+    <label>کد قالب (از sms.ir)</label>
+    <input id="fCode" inputmode="numeric">
+    <label>متن پیامک</label>
+    <textarea id="fText"></textarea>
+    <div class="hint">هر بخش قابل ویرایش را با اسم پارامتر قالب sms.ir داخل آکولاد بنویس، مثل {NAME}.<br>همه بخش‌ها همیشه با @ شروع می‌شوند.</div>
+    <div class="row"><button id="fSave">💾 ذخیره قالب</button><button class="sec" id="fCancel">انصراف</button></div>
+  </div>
 
-  <button id="send">🚀 ارسال</button>
+  <div id="main">
+    <label>شماره موبایل گیرنده</label>
+    <input id="mobile" inputmode="numeric" placeholder="09123456789">
+
+    <label>متن پیامک</label>
+    <div class="sms" id="sms"></div>
+    <div class="hint">روی بخش‌های زرد کلیک کن و ویرایش کن</div>
+
+    <button id="send">🚀 ارسال</button>
+    <div class="row"><button class="sec" id="editTpl">✏️ ویرایش قالب</button><button class="red" id="delTpl">🗑 حذف قالب</button></div>
+  </div>
   <div class="msg" id="out"></div>
+  <button class="sec" id="histBtn">🕘 تاریخچه</button>
+  <div class="hide" id="hist"></div>
 </div>
 
 <script>
-// ===== فقط این بخش را ویرایش کن =====
-const API_URL = "https://api.sms.ir/v1/send/verify";
-// متن پیامک: هر {0} {1} ... یک بخش قابل ویرایش است
-const TEXT = "متقاضی گرامی {0} {1} با کد ملی {2} مدارک شما با شناسه {3} به واحد تکمیلی جهت نهایی شدن ارجاع داده شد.\nواحد مرکز";
-// مقدار پیش‌فرض هر بخش
-const DEFAULTS = ["آقای", "علی علی‌زاده", "۰۰۰۰۰۰۰۰۰", "۷۵۷۵۷۶"];
-// اسم پارامترها در قالب sms.ir (به همان ترتیب بالا)
-const PARAMS = ["TITLE", "NAME", "NATIONALCODE", "ID"];
-// ====================================
+const API_URL="https://api.sms.ir/v1/send/verify";
+const REPORT_URL="https://api.sms.ir/v1/send/";
+const $=id=>document.getElementById(id);
+const ls={g(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}},s(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
-const $ = id => document.getElementById(id);
+// ===== پیام شناور =====
+let tt;
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("show"),3500);}
+function msg(t,c){const o=$("out");o.textContent=t;o.className="msg "+c;o.style.display="block";}
 
-["key","tpl"].forEach(k=>{
-  try{ const v=localStorage.getItem("sms_"+k); if(v) $(k).value=v; }catch(e){}
-  $(k).addEventListener("input",()=>{ try{localStorage.setItem("sms_"+k,$(k).value.trim())}catch(e){} });
+// ===== API Key =====
+$("key").value=ls.g("sms_key","");
+const sk=()=>ls.s("sms_key",$("key").value.trim());
+["input","change","blur"].forEach(ev=>$("key").addEventListener(ev,sk));
+window.addEventListener("pagehide",sk);
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+function topMode(v){$("topBox").classList.toggle("hide",v);$("savedBar").classList.toggle("hide",!v);}
+topMode(!!$("key").value.trim());
+$("saveTop").onclick=()=>{if(!$("key").value.trim())return toast("API Key را وارد کن");sk();topMode(true);toast("💾 ذخیره شد");};
+$("editTop").onclick=()=>topMode(false);
+
+// ===== قالب‌ها =====
+let T;
+try{T=JSON.parse(ls.g("sms_tpls","null"));}catch(e){T=null;}
+if(!Array.isArray(T))T=[];
+// قالب‌های پیش‌فرض (اگر نبودند اضافه می‌شوند)
+const DEF=[
+ {id:1,title:"ارجاع مدارک",code:"347635",
+  text:"متقاضی گرامی {GENDER=آقای} {NAME=علی علی‌زاده} با کد ملی {NATIONALID=۰۰۰۰۰۰۰۰۰} مدارک شما با شناسه {ID=۷۵۷۵۷۶} به واحد تکمیلی جهت نهایی شدن ارجاع گردید.\nواحد مرکز"},
+ {id:2,title:"ثبت دانشنامه",code:"655530",
+  text:"متقاضی گرامی {GENDER=آقای} {NAME=علی‌علیزاده} با کد ملی {NATIONALID=۰۰۰۰۰۰۰۰} دانشنامه {DEGREE=کارشناسی} شما در رشته {FIELD=مدیریت} با شناسه {ID=۰۰۰۰۰۰} ثبت گردید.\nواحد {UNIT=مرکز}"}
+];
+DEF.forEach(d=>{
+  const e=T.find(t=>t.id===d.id);
+  if(!e)T.push(d);
+  else{ if(!e.code)e.code=d.code; if(ls.g("sms_defv","")!=="4")e.text=d.text; }
 });
+ls.s("sms_tpls",JSON.stringify(T));ls.s("sms_defv","4");
+let sel=Math.min(+ls.g("sms_sel","0")||0,T.length-1), editing=null;
+const saveT=()=>ls.s("sms_tpls",JSON.stringify(T));
 
-// ساخت متن با بخش‌های قابل ویرایش
+function renderChips(){
+  const c=$("chips");c.innerHTML="";
+  T.forEach((t,i)=>{const b=document.createElement("button");b.className="chip"+(i===sel?" on":"");b.textContent=t.title||("قالب "+(i+1));
+    b.onclick=()=>{sel=i;ls.s("sms_sel",i);closeForm();renderChips();renderText();};c.appendChild(b);});
+  const a=document.createElement("button");a.className="chip add";a.textContent="➕ قالب جدید";a.onclick=()=>openForm(null);c.appendChild(a);
+}
+const LABELS={NAME:"نام و نام خانوادگی",GENDER:"آقای/خانم",NATIONALID:"کد ملی",ID:"شناسه",DEGREE:"مقطع",FIELD:"رشته",UNIT:"واحد"};
+const MARK="@";
+const norm=v=>v.trim().replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632);
 const box=$("sms");
-TEXT.split(/(\{\d+\})/).forEach(p=>{
-  const m=p.match(/^\{(\d+)\}$/);
-  if(m){
-    const s=document.createElement("span");
-    s.className="f"; s.contentEditable="true"; s.dataset.i=m[1];
-    s.textContent=DEFAULTS[m[1]]||"";
-    s.onkeydown=e=>{ if(e.key==="Enter") e.preventDefault(); };
-    s.onpaste=e=>{ e.preventDefault(); document.execCommand("insertText",false,(e.clipboardData.getData("text")||"").replace(/\n/g," ")); };
-    box.appendChild(s);
-  } else {
-    p.split("\n").forEach((line,i)=>{ if(i) box.appendChild(document.createElement("br")); box.appendChild(document.createTextNode(line)); });
-  }
-});
+function renderText(){
+  box.innerHTML="";
+  T[sel].text.split(/(\{[A-Za-z0-9_]+(?:=[^}]*)?\})/).forEach(p=>{
+    const m=p.match(/^\{([A-Za-z0-9_]+)(?:=([^}]*))?\}$/);
+    if(m){
+      const s=document.createElement("span");s.className="f";s.contentEditable="true";
+      s.dataset.n=m[1];s.dataset.ph=LABELS[m[1]]||m[1];s.oninput=()=>s.classList.remove("bad");s.textContent=MARK;
+      s.onfocus=()=>{const r=document.createRange();r.selectNodeContents(s);const g=getSelection();g.removeAllRanges();g.addRange(r);};
+      s.onkeydown=e=>{if(e.key==="Enter")e.preventDefault();};
+      s.onpaste=e=>{e.preventDefault();document.execCommand("insertText",false,(e.clipboardData.getData("text")||"").replace(/\n/g," "));};
+      box.appendChild(s);
+    }else p.split("\n").forEach((l,i)=>{if(i)box.appendChild(document.createElement("br"));box.appendChild(document.createTextNode(l));});
+  });
+}
+function openForm(i){
+  editing=i;const t=i===null?{title:"",code:"",text:""}:T[i];
+  $("fTitle").value=t.title;$("fCode").value=t.code;$("fText").value=t.text;
+  $("form").classList.remove("hide");$("main").classList.add("hide");
+}
+function closeForm(){$("form").classList.add("hide");$("main").classList.remove("hide");}
+$("editTpl").onclick=()=>openForm(sel);
+$("fCancel").onclick=closeForm;
+$("fSave").onclick=()=>{
+  const t={title:$("fTitle").value.trim(),code:$("fCode").value.trim(),text:$("fText").value.trim()};
+  if(!t.title||!t.text)return toast("عنوان و متن را وارد کن");
+  if(editing===null){t.id=Date.now();T.push(t);sel=T.length-1;}else{t.id=T[editing].id;T[editing]=t;}
+  saveT();ls.s("sms_sel",sel);closeForm();renderChips();renderText();toast("💾 قالب ذخیره شد");
+};
+$("delTpl").onclick=()=>{
+  if(T.length<2)return toast("حداقل یک قالب باید بماند");
+  if(!confirm("قالب «"+T[sel].title+"» حذف شود؟"))return;
+  T.splice(sel,1);sel=0;saveT();ls.s("sms_sel",0);renderChips();renderText();
+};
+renderChips();renderText();
 
-function msg(t,c){ const o=$("out"); o.textContent=t; o.className="msg "+c; o.style.display="block"; }
-
+// ===== ارسال =====
 $("send").onclick=async()=>{
-  const key=$("key").value.trim(), tpl=$("tpl").value.trim(), mobile=$("mobile").value.trim();
-  if(!key) return msg("API Key را وارد کن","err");
-  if(!tpl) return msg("کد قالب را وارد کن","err");
-  if(!/^09\d{9}$/.test(mobile)) return msg("شماره موبایل معتبر نیست","err");
-  const parameters=[...box.querySelectorAll(".f")].map(s=>({name:PARAMS[s.dataset.i],value:s.textContent.trim()}));
-  if(parameters.some(p=>!p.value)) return msg("همه بخش‌های زرد باید پر باشند","err");
-  $("send").disabled=true; msg("در حال ارسال...","ok");
+  const key=$("key").value.trim(),t=T[sel],mobile=norm($("mobile").value);
+  if(!key)return msg("API Key را وارد کن","err");
+  if(!t.code)return msg("کد این قالب خالی است؛ «ویرایش قالب» را بزن","err");
+  if(!/^09\d{9}$/.test(mobile))return msg("شماره موبایل معتبر نیست","err");
+  const parameters=[...box.querySelectorAll(".f")].map(s=>({name:s.dataset.n,value:s.textContent.trim()}));
+  const empty=[...box.querySelectorAll(".f")].filter(x=>{const v=x.textContent.trim();return !v||v===MARK;});
+  if(empty.length){empty.forEach(x=>x.classList.add("bad"));return msg("بخش‌های قرمز را پر کن","err");}
+  $("send").disabled=true;msg("در حال ارسال...","ok");
   try{
-    const r=await fetch(API_URL,{
-      method:"POST",
+    const r=await fetch(API_URL,{method:"POST",
       headers:{"Content-Type":"application/json","Accept":"application/json","x-api-key":key},
-      body:JSON.stringify({mobile,templateId:Number(tpl),parameters})
-    });
+      body:JSON.stringify({mobile,templateId:Number(t.code),parameters})});
     const d=await r.json().catch(()=>({}));
-    if(r.ok&&d.status===1) msg("✅ ارسال شد","ok");
-    else msg("❌ خطا: "+(d.message||r.status),"err");
-  }catch(e){ msg("❌ ارتباط برقرار نشد (احتمالاً CORS)","err"); }
+    if(r.ok&&d.status===1){
+      $("out").style.display="none";toast("✅ پیامک ارسال شد");
+      const np=parameters.find(p=>/NAME/i.test(p.name))||parameters[1]||parameters[0]||{value:""};
+      const h=loadH();h.unshift({id:d.data&&d.data.messageId,mobile,name:np.value,tpl:t.title,t:Date.now(),s:null});
+      saveH(h);if(!$("hist").classList.contains("hide"))renderH();
+      $("mobile").value="";renderText();
+    }else msg("❌ خطا: "+(d.message||r.status),"err");
+  }catch(e){msg("❌ ارتباط برقرار نشد (احتمالاً CORS)","err");}
   $("send").disabled=false;
 };
+
+// ===== تاریخچه =====
+const HK="sms_hist";
+function loadH(){try{return JSON.parse(ls.g(HK,"[]"))}catch(e){return[]}}
+function saveH(h){ls.s(HK,JSON.stringify(h.slice(0,50)));}
+// کد وضعیت sms.ir: 1 رسیده | 2 نرسیده | 3 و 4 اپراتور | بقیه در انتظار
+function info(s){
+  if(s===1)return["✅ رسیده به گوشی","ok"];
+  if(s===2)return["❌ نرسیده","err"];
+  if(s===3||s===4)return["📡 در اختیار اپراتور","op"];
+  return["⏳ در انتظار تایید","wait"];
+}
+function renderH(){
+  const b=$("hist"),h=loadH();b.innerHTML="";
+  if(!h.length){b.textContent="هنوز پیامکی ارسال نشده";return;}
+  h.forEach(x=>{
+    const [txt,cls]=info(x.s),d=document.createElement("div");d.className="hi";
+    const bb=document.createElement("b");bb.textContent=(x.name||"-")+" — "+x.mobile;d.appendChild(bb);
+    d.appendChild(document.createElement("br"));
+    const tag=document.createElement("span");tag.className="tag "+cls;tag.textContent=txt;d.appendChild(tag);
+    const r=document.createElement("span");r.className="raw";r.textContent=" کد وضعیت: "+(x.s==null?"-":x.s);d.appendChild(r);
+    d.appendChild(document.createElement("br"));
+    d.appendChild(document.createTextNode((x.tpl?x.tpl+" • ":"")+new Date(x.t).toLocaleString("fa-IR")));
+    b.appendChild(d);
+  });
+  const rb=document.createElement("button");rb.className="sec";rb.textContent="🔄 بروزرسانی وضعیت";rb.onclick=refreshH;b.appendChild(rb);
+}
+async function refreshH(){
+  const key=$("key").value.trim();if(!key)return toast("اول API Key را وارد کن");
+  const h=loadH();
+  for(const x of h){
+    if(!x.id||x.s===1||x.s===2)continue;
+    try{
+      const r=await fetch(REPORT_URL+x.id,{headers:{"Accept":"application/json","x-api-key":key}});
+      const d=await r.json();
+      if(d&&d.data)x.s=(d.data.deliveryState===undefined?null:d.data.deliveryState);
+    }catch(e){}
+  }
+  saveH(h);renderH();
+}
+$("histBtn").onclick=()=>{const b=$("hist");b.classList.toggle("hide");if(!b.classList.contains("hide")){renderH();refreshH();}};
 </script>
 </body>
 </html>
