@@ -2,450 +2,127 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سامانه ثبت درخواست و ارسال پیامک</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ارسال پیامک</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Tahoma','IranSans',sans-serif;background:#f0f2f0;padding:20px;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
-.box{max-width:750px;width:100%;margin:20px auto;background:#ffffff;padding:30px 28px;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.08);border:1px solid #e5e7eb}
-#loginBox h2{text-align:center;color:#0a2a1a;margin-bottom:24px;border-bottom:3px solid #b8963a;padding-bottom:12px}
-#loginBox input{width:100%;padding:14px 16px;margin:8px 0;border:2px solid #d1d5db;border-radius:8px;font-size:15px;outline:none;transition:0.2s}
-#loginBox input:focus{border-color:#0a2a1a;box-shadow:0 0 0 3px rgba(10,42,26,0.08)}
-#loginBox button{width:100%;padding:14px;background:#0a2a1a;color:#fff;border:none;border-radius:8px;font-size:17px;font-weight:700;cursor:pointer;transition:0.2s;margin-top:12px}
-#loginBox button:hover{background:#1a4a2a}
-#panel h2{text-align:center;color:#0a2a1a;border-bottom:3px solid #b8963a;padding-bottom:12px;margin-bottom:20px}
-#panel h3{color:#0a2a1a;margin:20px 0 12px;font-size:16px}
-label{display:block;font-weight:600;font-size:13px;color:#0a2a1a;margin-top:10px;margin-bottom:2px}
-input,select,textarea,button{width:100%;padding:12px 14px;margin:4px 0;border:2px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;font-family:inherit;transition:0.2s;box-sizing:border-box}
-input:focus,select:focus,textarea:focus{border-color:#0a2a1a;box-shadow:0 0 0 3px rgba(10,42,26,0.08)}
-textarea{resize:vertical;min-height:100px}
-button{cursor:pointer;font-weight:700;background:#0a2a1a;color:#fff;border:none;transition:0.2s}
-button:hover{background:#1a4a2a}
-button:disabled{opacity:0.5;cursor:not-allowed}
-.btn-danger{background:#991b1b}
-.btn-danger:hover{background:#7a1515}
-.btn-success{background:#166534}
-.btn-success:hover{background:#0f4a2a}
-hr{margin:20px 0;border:none;border-top:2px solid #e5e7eb}
-.status-msg{padding:12px 16px;border-radius:8px;margin:10px 0;display:none;font-weight:600;text-align:center}
-.status-msg.success{display:block;background:#ecfdf5;color:#166534;border:2px solid #6ee7b7}
-.status-msg.error{display:block;background:#fef2f2;color:#991b1b;border:2px solid #fca5a5}
-.status-msg.loading{display:block;background:#ebf8ff;color:#065f46;border:2px solid #a7f3d0}
-@media(max-width:640px){body{padding:10px}.box{padding:18px 16px}input,select,textarea,button{padding:10px 12px;font-size:14px}}
-.hidden{display:none!important}
+*{box-sizing:border-box}
+body{margin:0;font-family:Tahoma,sans-serif;background:#f1f5f9;color:#0f172a;display:flex;justify-content:center;padding:16px}
+.card{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:480px;box-shadow:0 2px 12px #0001;margin-top:20px}
+h2{margin:0 0 14px;font-size:18px}
+label{display:block;font-size:13px;margin:12px 0 4px;color:#475569}
+input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:15px}
+button{width:100%;margin-top:16px;padding:12px;border:0;border-radius:8px;background:#2563eb;color:#fff;font:inherit;font-size:16px;cursor:pointer}
+button.sec{background:#e2e8f0;color:#0f172a;margin-top:8px}
+button:disabled{opacity:.6}
+.top{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:2px 12px 12px;margin-bottom:14px}
+.sms{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px;font-size:15px;line-height:2.1;margin-top:6px}
+.f{background:#fef9c3;border-bottom:2px solid #eab308;border-radius:4px;padding:2px 6px;outline:none;display:inline-block;min-width:30px}
+.f:focus{background:#fde68a}
+.hint{font-size:12px;color:#64748b;margin-top:6px}
+.msg{margin-top:12px;padding:10px;border-radius:8px;font-size:14px;display:none}
+.ok{background:#dcfce7;color:#166534}.err{background:#fee2e2;color:#991b1b}
+.hide{display:none}
 </style>
 </head>
 <body>
 
-<!-- ===== لاگین ===== -->
-<div class="box" id="loginBox">
-  <h2>🔐 ورود به سامانه</h2>
-  <label>نام کاربری</label>
-  <input id="username" placeholder="نام کاربری" value="Admin" />
+<div class="card" id="login">
+  <h2>🔐 ورود</h2>
   <label>رمز عبور</label>
-  <input id="password" type="password" placeholder="رمز عبور" value="Admin90" />
-  <button onclick="login()">ورود</button>
-  <div id="loginError" style="color:#991b1b;text-align:center;margin-top:10px;display:none;font-weight:600;">❌ نام کاربری یا رمز عبور اشتباه است</div>
+  <input type="password" id="pass" inputmode="numeric">
+  <button id="loginBtn">ورود</button>
+  <div class="msg err" id="loginErr">رمز اشتباه است</div>
 </div>
 
-<!-- ===== پنل اصلی ===== -->
-<div class="box hidden" id="panel">
+<div class="card hide" id="app">
+  <h2>📨 ارسال پیامک</h2>
 
-  <h2>📋 سامانه ثبت درخواست و ارسال پیامک</h2>
-
-  <!-- ===== تنظیمات پیامک ===== -->
-  <div style="background:#f8f5ec;padding:12px;border-radius:8px;border:1px solid #b8963a;margin-bottom:16px;">
-    <p style="font-size:13px;color:#0a2a1a;font-weight:600;">📡 تنظیمات ارسال پیامک:</p>
-    <p style="font-size:12px;color:#4a5a4a;">
-      🔑 API Key: <span id="displayApiKey" style="color:#b8963a;font-weight:700;">وارد کنید</span><br>
-      📝 کد قالب: 943542<br>
-      📞 شماره خط ارسال: <span style="color:#b8963a;font-weight:700;">خدمات ویژه (خودکار)</span>
-    </p>
+  <div class="top">
+    <label>API Key</label>
+    <input id="key" type="password" dir="ltr">
+    <label>کد قالب</label>
+    <input id="tpl" inputmode="numeric">
   </div>
 
-  <!-- بخش وارد کردن API Key در خود سایت -->
-  <div style="background:#f0f7f4;padding:12px;border-radius:8px;border:1px solid #a7d0b8;margin-bottom:16px;">
-    <p style="font-size:13px;color:#0a2a1a;font-weight:600;">🔑 وارد کردن API Key:</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <input id="apiKeyInput" placeholder="API Key خود را وارد کنید" style="flex:2;min-width:150px;" />
-      <button onclick="setApiKey()" style="flex:0 0 auto;padding:12px 20px;">✅ تایید</button>
-    </div>
-    <p id="apiKeyStatus" style="font-size:12px;color:#4a5a4a;margin-top:6px;"></p>
-  </div>
+  <label>شماره موبایل گیرنده</label>
+  <input id="mobile" inputmode="numeric" placeholder="09123456789">
 
-  <label>📱 شماره موبایل (مقصد) *</label>
-  <input id="mobile" placeholder="مثال: ۰۹۱۲۳۴۵۶۷۸۹" />
+  <label>متن پیامک</label>
+  <div class="sms" id="sms"></div>
+  <div class="hint">روی بخش‌های زرد کلیک کن و ویرایش کن</div>
 
-  <label>👤 نام و نام خانوادگی *</label>
-  <input id="name" placeholder="مثال: علیرضا عوض آقائی" />
-
-  <label>🆔 کد ملی *</label>
-  <input id="meli" placeholder="مثال: ۲۴۲۰۴۵۴۰۵۷" />
-
-  <label>🔑 شناسه *</label>
-  <input id="shenase" placeholder="کد پیگیری یا شناسه" />
-
-  <label>🎓 مقطع تحصیلی *</label>
-  <input id="maghta" placeholder="مثال: کارشناسی / کارشناسی ارشد / دکتری" />
-
-  <label>📚 رشته تحصیلی *</label>
-  <input id="reshte" placeholder="مثال: فیزیولوژی ورزشی" />
-
-  <label>🏢 واحد / دانشگاه</label>
-  <select id="unit"></select>
-
-  <label>📌 وضعیت درخواست</label>
-  <select id="status">
-    <option value="registered">✅ ثبت گردید</option>
-    <option value="review">⏳ در حال بررسی می‌باشد</option>
-    <option value="referred">📤 به واحد مربوطه ارجاع داده شد</option>
-    <option value="approved">✔️ تایید نهایی شد</option>
-    <option value="rejected">❌ رد شد</option>
-  </select>
-
-  <h3>🏛️ مدیریت واحدها</h3>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-    <input id="newUnit" placeholder="نام واحد جدید" style="flex:1;min-width:150px;" />
-    <button onclick="addUnit()" style="flex:0 0 auto;padding:12px 20px;">➕ افزودن</button>
-    <button onclick="removeUnit()" class="btn-danger" style="flex:0 0 auto;padding:12px 20px;">🗑️ حذف آخرین</button>
-  </div>
-
-  <hr>
-
-  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-    <button id="actionBtn" onclick="makeText()" style="flex:2;">📝 ایجاد متن و ارسال پیامک</button>
-    <button onclick="copyText()" class="btn-success" style="flex:1;">📋 کپی متن</button>
-  </div>
-
-  <label>📄 متن تولید شده</label>
-  <textarea id="out" rows="6" readonly></textarea>
-
-  <div id="sendDetails" style="display:none;background:#f0f7f4;padding:12px;border-radius:8px;margin:10px 0;font-size:13px;border:1px solid #a7d0b8;">
-    <p style="font-weight:600;color:#0a2a1a;">📨 جزئیات ارسال:</p>
-    <p id="sendInfo" style="color:#1a4a2a;"></p>
-  </div>
-
-  <div id="statusMsg" class="status-msg"></div>
-
-  <button onclick="logout()" class="btn-danger" style="margin-top:16px;">🚪 خروج از حساب</button>
+  <button id="send">🚀 ارسال</button>
+  <div class="msg" id="out"></div>
+  <button class="sec" id="logout">خروج</button>
 </div>
 
 <script>
-// ============================================================
-//  🔑 تنظیمات اولیه (خالی)
-// ============================================================
-let CURRENT_API_KEY = "";
+// ===== فقط این بخش را ویرایش کن =====
+const PASSWORD = "1234";
+const API_URL = "https://api.sms.ir/v1/send/verify";
+// متن پیامک: هر {0} {1} ... یک بخش قابل ویرایش است
+const TEXT = "متقاضی گرامی {0} {1} با کد ملی {2} مدارک شما با شناسه {3} به واحد تکمیلی جهت نهایی شدن ارجاع داده شد.\nواحد مرکز";
+// مقدار پیش‌فرض هر بخش
+const DEFAULTS = ["آقای", "علی علی‌زاده", "۰۰۰۰۰۰۰۰۰", "۷۵۷۵۷۶"];
+// اسم پارامترها در قالب sms.ir (به همان ترتیب بالا)
+const PARAMS = ["TITLE", "NAME", "NATIONALCODE", "ID"];
+// ====================================
 
-// ============================================================
-//  تابع تنظیم API Key در خود سایت
-// ============================================================
-function setApiKey() {
-  const input = document.getElementById("apiKeyInput").value.trim();
-  if (input.length > 10) {
-    CURRENT_API_KEY = input;
-    document.getElementById("displayApiKey").textContent = input.substring(0, 15) + "...";
-    document.getElementById("displayApiKey").style.color = "#0a2a1a";
-    document.getElementById("apiKeyStatus").textContent = "✅ API Key با موفقیت ثبت شد";
-    document.getElementById("apiKeyStatus").style.color = "#166534";
-    // ذخیره در localStorage
-    localStorage.setItem("smsApiKey", input);
-    showStatus("✅ API Key با موفقیت ثبت شد", "success");
+const $ = id => document.getElementById(id);
+function show(a){ $("login").classList.toggle("hide",a); $("app").classList.toggle("hide",!a); }
+show(sessionStorage.getItem("auth")==="1");
+
+function login(){
+  if($("pass").value===PASSWORD){ sessionStorage.setItem("auth","1"); show(true); }
+  else $("loginErr").style.display="block";
+}
+$("loginBtn").onclick=login;
+$("pass").onkeydown=e=>e.key==="Enter"&&login();
+$("logout").onclick=()=>{ sessionStorage.removeItem("auth"); $("pass").value=""; show(false); };
+
+["key","tpl"].forEach(k=>{
+  try{ const v=localStorage.getItem("sms_"+k); if(v) $(k).value=v; }catch(e){}
+  $(k).addEventListener("input",()=>{ try{localStorage.setItem("sms_"+k,$(k).value.trim())}catch(e){} });
+});
+
+// ساخت متن با بخش‌های قابل ویرایش
+const box=$("sms");
+TEXT.split(/(\{\d+\})/).forEach(p=>{
+  const m=p.match(/^\{(\d+)\}$/);
+  if(m){
+    const s=document.createElement("span");
+    s.className="f"; s.contentEditable="true"; s.dataset.i=m[1];
+    s.textContent=DEFAULTS[m[1]]||"";
+    s.onkeydown=e=>{ if(e.key==="Enter") e.preventDefault(); };
+    s.onpaste=e=>{ e.preventDefault(); document.execCommand("insertText",false,(e.clipboardData.getData("text")||"").replace(/\n/g," ")); };
+    box.appendChild(s);
   } else {
-    document.getElementById("apiKeyStatus").textContent = "❌ API Key نامعتبر است";
-    document.getElementById("apiKeyStatus").style.color = "#991b1b";
+    p.split("\n").forEach((line,i)=>{ if(i) box.appendChild(document.createElement("br")); box.appendChild(document.createTextNode(line)); });
   }
-}
+});
 
-// ============================================================
-//  بارگذاری API Key ذخیره شده
-// ============================================================
-function loadApiKey() {
-  const saved = localStorage.getItem("smsApiKey");
-  if (saved && saved.length > 10) {
-    CURRENT_API_KEY = saved;
-    document.getElementById("apiKeyInput").value = saved;
-    document.getElementById("displayApiKey").textContent = saved.substring(0, 15) + "...";
-    document.getElementById("displayApiKey").style.color = "#0a2a1a";
-    document.getElementById("apiKeyStatus").textContent = "✅ API Key loaded from storage";
-    document.getElementById("apiKeyStatus").style.color = "#166534";
-  }
-}
+function msg(t,c){ const o=$("out"); o.textContent=t; o.className="msg "+c; o.style.display="block"; }
 
-// ============================================================
-//  👤 اطلاعات لاگین
-// ============================================================
-const LOGIN = {
-  username: "Admin",
-  password: "Admin90"
-};
-
-// ============================================================
-//  🏢 مدیریت واحدها
-// ============================================================
-let units = JSON.parse(
-  localStorage.getItem("units") ||
-  '["تهران مرکزی","تهران جنوب","شیراز","کرمانشاه","اصفهان","تبریز"]'
-);
-
-function renderUnits() {
-  const s = document.getElementById("unit");
-  s.innerHTML = "";
-  units.forEach(function(u) {
-    const o = document.createElement("option");
-    o.value = u;
-    o.textContent = u;
-    s.appendChild(o);
-  });
-  localStorage.setItem("units", JSON.stringify(units));
-}
-
-function addUnit() {
-  const v = document.getElementById("newUnit").value.trim();
-  if (v && !units.includes(v)) {
-    units.push(v);
-    renderUnits();
-    document.getElementById("newUnit").value = "";
-    showStatus("✅ واحد جدید افزوده شد", "success");
-  } else if (v && units.includes(v)) {
-    showStatus("⚠️ این واحد قبلاً وجود دارد", "error");
-  } else {
-    showStatus("⚠️ لطفاً نام واحد را وارد کنید", "error");
-  }
-}
-
-function removeUnit() {
-  if (units.length > 1) {
-    const removed = units.pop();
-    renderUnits();
-    showStatus(`🗑️ واحد "${removed}" حذف شد`, "success");
-  } else {
-    showStatus("⚠️ حداقل یک واحد باید وجود داشته باشد", "error");
-  }
-}
-
-renderUnits();
-
-// ============================================================
-//  🔐 توابع لاگین
-// ============================================================
-function login() {
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
-  const error = document.getElementById("loginError");
-
-  if (u === LOGIN.username && p === LOGIN.password) {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("panel").classList.remove("hidden");
-    error.style.display = "none";
-    loadApiKey();
-    showStatus("✅ خوش آمدید! سامانه آماده است.", "success");
-  } else {
-    error.style.display = "block";
-  }
-}
-
-function logout() {
-  if (confirm("آیا از خروج مطمئن هستید؟")) {
-    document.getElementById("panel").classList.add("hidden");
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("username").value = "";
-    document.getElementById("password").value = "";
-    document.getElementById("loginError").style.display = "none";
-    document.getElementById("statusMsg").className = "status-msg";
-    document.getElementById("statusMsg").style.display = "none";
-  }
-}
-
-// ============================================================
-//  📊 نمایش وضعیت
-// ============================================================
-function showStatus(message, type = "success") {
-  const el = document.getElementById("statusMsg");
-  el.textContent = message;
-  el.className = "status-msg " + type;
-  el.style.display = "block";
-  if (type !== "loading") {
-    setTimeout(() => {
-      el.style.display = "none";
-    }, 6000);
-  }
-}
-
-// ============================================================
-//  📨 ارسال پیامک از طریق API اس‌ام‌اس‌آی‌آر (روش دوم)
-// ============================================================
-async function sendSMS(phoneNumber, message) {
-  const sendDetails = document.getElementById("sendDetails");
-  const sendInfo = document.getElementById("sendInfo");
-
-  // ==========================================
-  //  چک کردن API Key
-  // ==========================================
-  if (!CURRENT_API_KEY || CURRENT_API_KEY.length < 10) {
-    showStatus("⚠️ لطفاً ابتدا API Key را در بخش تنظیمات وارد کنید", "error");
-    return false;
-  }
-
-  try {
-    showStatus("⏳ در حال ارسال پیامک...", "loading");
-
-    sendDetails.style.display = "block";
-    sendInfo.innerHTML = `
-      📱 شماره مقصد: ${phoneNumber}<br>
-      📝 متن پیام: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}<br>
-      🔑 API Key: ${CURRENT_API_KEY.substring(0, 15)}...<br>
-      📝 کد قالب: 943542<br>
-      📞 شماره خط: خدمات ویژه (خودکار)
-    `;
-
-    // ==========================================
-    //  روش دوم: ارسال با فرمت جدید API
-    // ==========================================
-    const payload = {
-      apiKey: CURRENT_API_KEY,
-      mobile: phoneNumber,
-      templateCode: "943542",
-      parameters: [
-        {
-          name: "نام",
-          value: document.getElementById("name").value || "متقاضی"
-        },
-        {
-          name: "پیام",
-          value: message
-        }
-      ]
-    };
-
-    console.log("📤 ارسال به اس‌ام‌اس‌آی‌آر (روش دوم):", JSON.stringify(payload, null, 2));
-
-    // استفاده از آدرس API جدیدتر
-    const response = await fetch("https://api.sms.ir/v1/send/receive", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify(payload)
+$("send").onclick=async()=>{
+  const key=$("key").value.trim(), tpl=$("tpl").value.trim(), mobile=$("mobile").value.trim();
+  if(!key) return msg("API Key را وارد کن","err");
+  if(!tpl) return msg("کد قالب را وارد کن","err");
+  if(!/^09\d{9}$/.test(mobile)) return msg("شماره موبایل معتبر نیست","err");
+  const parameters=[...box.querySelectorAll(".f")].map(s=>({name:PARAMS[s.dataset.i],value:s.textContent.trim()}));
+  if(parameters.some(p=>!p.value)) return msg("همه بخش‌های زرد باید پر باشند","err");
+  $("send").disabled=true; msg("در حال ارسال...","ok");
+  try{
+    const r=await fetch(API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json","x-api-key":key},
+      body:JSON.stringify({mobile,templateId:Number(tpl),parameters})
     });
-
-    const result = await response.json();
-    console.log("📥 پاسخ اس‌ام‌اس‌آی‌آر:", result);
-
-    // ==========================================
-    //  بررسی پاسخ
-    // ==========================================
-    if (response.status === 200 && (result.status === 1 || result.status === "success" || result.result === "success")) {
-      showStatus(`✅ پیامک با موفقیت به شماره ${phoneNumber} ارسال شد`, "success");
-      sendInfo.innerHTML += `<br><br>✅ وضعیت: ارسال موفق`;
-      return true;
-    } else {
-      let errorMsg = result.message || result.detail || JSON.stringify(result);
-      showStatus(`❌ خطا: ${errorMsg}`, "error");
-      sendInfo.innerHTML += `<br><br>❌ وضعیت: ${errorMsg}`;
-      return false;
-    }
-
-  } catch (error) {
-    console.error("❌ خطا:", error);
-    showStatus(`❌ خطا: ${error.message}`, "error");
-    sendInfo.innerHTML += `<br><br>❌ خطا: ${error.message}`;
-    return false;
-  }
-}
-
-// ============================================================
-//  📝 ساخت متن و ارسال
-// ============================================================
-async function makeText() {
-  const name = document.getElementById("name").value.trim();
-  const meli = document.getElementById("meli").value.trim();
-  const maghta = document.getElementById("maghta").value.trim();
-  const reshte = document.getElementById("reshte").value.trim();
-  const unit = document.getElementById("unit").value;
-  const shenase = document.getElementById("shenase").value.trim();
-  const mobile = document.getElementById("mobile").value.trim();
-
-  const phoneRegex = /^09[0-9]{9}$/;
-  if (!phoneRegex.test(mobile)) {
-    showStatus("⚠️ شماره موبایل معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹)", "error");
-    return;
-  }
-
-  if (!name || !meli || !maghta || !reshte || !shenase) {
-    showStatus("⚠️ لطفاً تمام فیلدهای الزامی (*) را پر کنید", "error");
-    return;
-  }
-
-  const statusMap = {
-    "registered": "ثبت گردید.",
-    "review": "در حال بررسی می‌باشد.",
-    "referred": "به واحد مربوطه ارجاع داده شد.",
-    "approved": "تایید نهایی شد.",
-    "rejected": "متاسفانه رد شد."
-  };
-  const statusValue = document.getElementById("status").value;
-  const statusText = statusMap[statusValue] || "ثبت گردید.";
-
-  const text = `متقاضی گرامی آقای/خانم ${name}، درخواست شما با کد ملی ${meli} در مقطع ${maghta} رشته ${reshte}، واحد ${unit} و شناسه ${shenase} ${statusText}`;
-
-  document.getElementById("out").value = text;
-
-  await sendSMS(mobile, text);
-}
-
-// ============================================================
-//  📋 کپی متن
-// ============================================================
-function copyText() {
-  const text = document.getElementById("out").value;
-  if (!text) {
-    showStatus("⚠️ ابتدا متن را ایجاد کنید", "error");
-    return;
-  }
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text)
-      .then(() => showStatus("✅ متن با موفقیت کپی شد", "success"))
-      .catch(() => fallbackCopy(text));
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.style.position = "fixed";
-  ta.style.opacity = "0";
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand("copy");
-    showStatus("✅ متن با موفقیت کپی شد", "success");
-  } catch (e) {
-    showStatus("❌ خطا در کپی متن", "error");
-  }
-  document.body.removeChild(ta);
-}
-
-// ============================================================
-//  ⌨️ کلید Enter برای لاگین
-// ============================================================
-document.getElementById("password").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") login();
-});
-document.getElementById("username").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") login();
-});
-
-// ============================================================
-//  🚀 بارگذاری اولیه
-// ============================================================
-console.log("🚀 سامانه ثبت درخواست و ارسال پیامک");
-console.log("📡 متصل به اس‌ام‌اس‌آی‌آر (روش دوم)");
+    const d=await r.json().catch(()=>({}));
+    if(r.ok&&d.status===1) msg("✅ ارسال شد","ok");
+    else msg("❌ خطا: "+(d.message||r.status),"err");
+  }catch(e){ msg("❌ ارتباط برقرار نشد (احتمالاً CORS)","err"); }
+  $("send").disabled=false;
+};
 </script>
-
 </body>
 </html>
