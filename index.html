@@ -26,15 +26,7 @@ button:disabled{opacity:.6}
 </head>
 <body>
 
-<div class="card" id="login">
-  <h2>🔐 ورود</h2>
-  <label>رمز عبور</label>
-  <input type="password" id="pass" inputmode="numeric">
-  <button id="loginBtn">ورود</button>
-  <div class="msg err" id="loginErr">رمز اشتباه است</div>
-</div>
-
-<div class="card hide" id="app">
+<div class="card" id="app">
   <h2>📨 ارسال پیامک</h2>
 
   <div class="top">
@@ -53,12 +45,10 @@ button:disabled{opacity:.6}
 
   <button id="send">🚀 ارسال</button>
   <div class="msg" id="out"></div>
-  <button class="sec" id="logout">خروج</button>
 </div>
 
 <script>
 // ===== فقط این بخش را ویرایش کن =====
-const PASSWORD = "1234";
 const API_URL = "https://api.sms.ir/v1/send/verify";
 // متن پیامک: هر {0} {1} ... یک بخش قابل ویرایش است
 const TEXT = "متقاضی گرامی {0} {1} با کد ملی {2} مدارک شما با شناسه {3} به واحد تکمیلی جهت نهایی شدن ارجاع داده شد.\nواحد مرکز";
@@ -69,16 +59,6 @@ const PARAMS = ["TITLE", "NAME", "NATIONALCODE", "ID"];
 // ====================================
 
 const $ = id => document.getElementById(id);
-function show(a){ $("login").classList.toggle("hide",a); $("app").classList.toggle("hide",!a); }
-show(sessionStorage.getItem("auth")==="1");
-
-function login(){
-  if($("pass").value===PASSWORD){ sessionStorage.setItem("auth","1"); show(true); }
-  else $("loginErr").style.display="block";
-}
-$("loginBtn").onclick=login;
-$("pass").onkeydown=e=>e.key==="Enter"&&login();
-$("logout").onclick=()=>{ sessionStorage.removeItem("auth"); $("pass").value=""; show(false); };
 
 ["key","tpl"].forEach(k=>{
   try{ const v=localStorage.getItem("sms_"+k); if(v) $(k).value=v; }catch(e){}
